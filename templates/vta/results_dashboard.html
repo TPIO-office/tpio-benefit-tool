@@ -1,0 +1,82 @@
+{% extends 'vta/base.html' %}
+{% load vta_tags %}
+
+{% block title %}Results Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="mb-4">Results Dashboard</h1>
+
+        {% if assessments %}
+        <div class="row mb-4">
+            {% for assessment in assessments %}
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a href="{% url 'vta:assessment_detail' assessment.pk %}" class="text-decoration-none">{{ assessment.title }}</a>
+                        </h5>
+                        <p class="card-text text-muted small">{{ assessment.get_status_display }}</p>
+
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <strong>{{ assessment.assessment_nodes.count }}</strong>
+                                <br><small class="text-muted">Nodes</small>
+                            </div>
+                            <div class="col-4">
+                                <strong>{{ assessment_links|default:0 }}</strong>
+                                <br><small class="text-muted">Links</small>
+                            </div>
+                            <div class="col-4">
+                                <strong>{{ assessment_responses|default:0 }}</strong>
+                                <br><small class="text-muted">Responses</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        {% if assessment.avg_performance is not None %}
+                        <small>Avg Performance: {{ assessment.avg_performance|floatformat:1 }}</small><br>
+                        {% endif %}
+                        {% if assessment.avg_criticality is not None %}
+                        <small>Avg Criticality: {{ assessment.avg_criticality|floatformat:1 }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if aggregate_stats %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <strong>Aggregate Statistics</strong>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <h3 class="text-primary">{{ aggregate_stats.total_assessments|default:0 }}</h3>
+                        <small>Total Assessments</small>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <h3 class="text-success">{{ aggregate_stats.total_nodes|default:0 }}</h3>
+                        <small>Total Nodes</small>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <h3 class="text-info">{{ aggregate_stats.total_links|default:0 }}</h3>
+                        <small>Total Links</small>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <h3 class="text-warning">{{ aggregate_stats.total_responses|default:0 }}</h3>
+                        <small>Total Responses</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="alert alert-info">No assessments available. Create an assessment to begin.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

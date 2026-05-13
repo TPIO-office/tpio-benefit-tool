@@ -1,0 +1,82 @@
+{% extends 'vta/base.html' %}
+{% load vta_tags %}
+
+{% block title %}Object Library - Nodes{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1>Object Library</h1>
+            {% if user|has_any_group:'Analyst,Admin' %}
+            <a href="{% url 'vta:node_create' %}" class="btn btn-primary">New Node</a>
+            {% endif %}
+        </div>
+
+        <form class="row g-3 mb-3" method="get">
+            <div class="col-auto">
+                <input type="text" name="search" class="form-control" placeholder="Search nodes..." value="{{ request.GET.search|default:'' }}">
+            </div>
+            <div class="col-auto">
+                <select name="type" class="form-select">
+                    <option value="">All Types</option>
+                    {% for value, label in node_types %}
+                    <option value="{{ value }}" {% if request.GET.type == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-outline-primary">Filter</button>
+            </div>
+        </form>
+
+        {% if nodes %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Title</th>
+                        <th>Short Name</th>
+                        <th>Created By</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for node in nodes %}
+                    <tr>
+                        <td>{{ node.get_type_display }}</td>
+                        <td>{{ node.title }}</td>
+                        <td>{{ node.short_name }}</td>
+                        <td>{{ node.created_by.user.username }}</td>
+                        <td>
+                            <a href="{% url 'vta:node_detail' node.pk %}" class="btn btn-sm btn-info">View</a>
+                            {% if user|has_any_group:'Analyst,Admin' %}
+                            <a href="{% url 'vta:node_update' node.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if is_paginated %}
+        <nav>
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}">Previous</a></li>
+                {% endif %}
+                <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}">Next</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        {% else %}
+        <p>No nodes found in the object library.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

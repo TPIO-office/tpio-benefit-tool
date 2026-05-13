@@ -1,0 +1,35 @@
+{% extends 'vta/base.html' %}
+{% load vta_tags %}
+
+{% block title %}{% if object %}Edit Link{% else %}Create Link{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h1>{% if object %}Edit Link{% else %}Create Link{% endif %}</h1>
+        {% if assessment %}<p class="text-muted">Assessment: <strong>{{ assessment.title }}</strong></p>{% endif %}
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="mb-3">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                <div class="text-danger">{{ field.errors }}</div>
+                {% endif %}
+                {% if field.help_text %}
+                <small class="form-text text-muted">{{ field.help_text }}</small>
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a href="{% url 'vta:assessment_detail' assessment.pk %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

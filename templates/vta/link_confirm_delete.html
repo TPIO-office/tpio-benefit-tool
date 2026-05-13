@@ -1,0 +1,32 @@
+{% extends 'vta/base.html' %}
+{% load vta_tags %}
+
+{% block title %}Delete Link{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <h1 class="mb-4">Confirm Deletion</h1>
+        <div class="card border-danger">
+            <div class="card-body">
+                <p>Are you sure you want to delete the following link?</p>
+                <h5>{{ link.source_assessment_node.node.title }}</h5>
+                <p class="mb-1"><strong>&darr;</strong></p>
+                <h5>{{ link.target_assessment_node.node.title }}</h5>
+
+                {% if link.performance_rating or link.criticality_rating %}
+                <div class="alert alert-warning mt-3">
+                    <strong>Warning:</strong> This link has ratings that will also be deleted.
+                </div>
+                {% endif %}
+
+                <form method="post" class="mt-3">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                    <a href="{% url 'vta:link_list' link.source_assessment_node.assessment.pk %}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

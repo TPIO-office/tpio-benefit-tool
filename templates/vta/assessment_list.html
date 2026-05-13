@@ -1,0 +1,67 @@
+{% extends 'vta/base.html' %}
+{% load vta_tags %}
+
+{% block title %}Assessments{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1>Assessments</h1>
+            {% if user|has_any_group:'Analyst,Admin' %}
+            <a href="{% url 'vta:assessment_create' %}" class="btn btn-primary">New Assessment</a>
+            {% endif %}
+        </div>
+
+        {% if assessments %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Status</th>
+                        <th>Private</th>
+                        <th>Created By</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for assessment in assessments %}
+                    <tr>
+                        <td>{{ assessment.title }}</td>
+                        <td>{{ assessment.get_status_display }}</td>
+                        <td>{{ assessment.private|yesno:"Yes,No" }}</td>
+                        <td>{{ assessment.created_by.user.get_full_name|default:assessment.created_by.user.username }}</td>
+                        <td>{{ assessment.created_timestamp|date:"Y-m-d" }}</td>
+                        <td>
+                            <a href="{% url 'vta:assessment_detail' assessment.pk %}" class="btn btn-sm btn-info">View</a>
+                            {% if user|has_any_group:'Analyst,Admin' %}
+                            <a href="{% url 'vta:assessment_update' assessment.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if is_paginated %}
+        <nav>
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+                {% endif %}
+                <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        {% else %}
+        <p>No assessments found.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

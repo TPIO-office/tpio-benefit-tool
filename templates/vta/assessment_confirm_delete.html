@@ -1,0 +1,34 @@
+{% extends 'vta/base.html' %}
+{% load vta_tags %}
+
+{% block title %}Delete Assessment{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <h1 class="mb-4">Confirm Deletion</h1>
+        <div class="card border-danger">
+            <div class="card-body">
+                <p>Are you sure you want to delete the following assessment?</p>
+                <h5>{{ assessment.title }}</h5>
+                <p class="text-muted">{{ assessment.get_status_display }}</p>
+
+                <div class="alert alert-warning mt-3">
+                    <strong>Warning:</strong> This will also delete all associated nodes and links within this assessment.
+                </div>
+
+                <ul class="list-unstyled">
+                    <li>Assessment Nodes: {{ assessment.assessment_nodes.count }}</li>
+                    <li>Links: {{ assessment.link_count|default:0 }}</li>
+                </ul>
+
+                <form method="post" class="mt-3">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Delete Assessment</button>
+                    <a href="{% url 'vta:assessment_detail' assessment.pk %}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

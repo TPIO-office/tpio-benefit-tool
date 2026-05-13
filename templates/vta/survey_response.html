@@ -1,0 +1,49 @@
+{% extends 'vta/base.html' %}
+{% load vta_tags %}
+
+{% block title %}Rate Link - {{ assessment.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h1>Rate Connection</h1>
+        <p class="text-muted">Assessment: <strong>{{ assessment.title }}</strong></p>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <strong>Connection Details</strong>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Source</dt>
+                    <dd class="col-sm-8">{{ source_node.node.title }} ({{ source_node.node.get_type_display }})</dd>
+
+                    <dt class="col-sm-4">Target</dt>
+                    <dd class="col-sm-8">{{ target_node.node.title }} ({{ target_node.node.get_type_display }})</dd>
+
+                    <dt class="col-sm-4">Attribute</dt>
+                    <dd class="col-sm-8">{{ link.attribute_description|default:"—" }}</dd>
+                </dl>
+            </div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="mb-3">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                <div class="text-danger">{{ field.errors }}</div>
+                {% endif %}
+                {% if field.help_text %}
+                <small class="form-text text-muted">{{ field.help_text }}</small>
+                {% endif %}
+            </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary">Submit Rating</button>
+            <a href="{% url 'vta:assessment_detail' assessment.pk %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

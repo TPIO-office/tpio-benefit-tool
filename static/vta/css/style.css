@@ -1,0 +1,48 @@
+/* USAON Benefit Tool - Custom Styles */
+
+.sankey-container {
+    width: 100%;
+    height: 600px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+
+.rating-badge {
+    display: inline-block;
+    padding: 0.25em 0.6em;
+    font-size: 75%;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    border-radius: 0.25rem;
+}
+
+.rating-high {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.rating-medium {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.rating-low {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.node-type-badge {
+    font-size: 0.8em;
+}
+
+.stat-card {
+    border-left: 4px solid #007bff;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #007bff;
+}

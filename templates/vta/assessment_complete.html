@@ -1,0 +1,21 @@
+{% extends 'vta/base.html' %}
+{% load vta_tags %}
+
+{% block title %}Survey Complete - {{ assessment.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="text-center mt-5">
+            <h1 class="text-success mb-4">Survey Complete</h1>
+            <p class="lead">Thank you for completing the assessment "<strong>{{ assessment.title }}</strong>".</p>
+            <p>Your responses have been recorded successfully.</p>
+
+            <div class="mt-4">
+                <a href="{% url 'vta:assessment_detail' assessment.pk %}" class="btn btn-primary me-2">View Assessment</a>
+                <a href="{% url 'vta:assessment_list' %}" class="btn btn-secondary">Back to Assessments</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

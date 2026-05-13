@@ -1,0 +1,110 @@
+{% extends 'vta/base.html' %}
+{% load vta_tags %}
+
+{% block title %}{{ node.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-10 offset-md-1">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1>{{ node.title }}</h1>
+            {% if user|has_any_group:'Analyst,Admin' %}
+            <div>
+                <a href="{% url 'vta:node_update' node.pk %}" class="btn btn-warning btn-sm">Edit</a>
+                <a href="{% url 'vta:node_delete' node.pk %}" class="btn btn-danger btn-sm">Delete</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <strong>General Information</strong>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">Type</dt>
+                    <dd class="col-sm-9">{{ node.get_type_display }}</dd>
+
+                    <dt class="col-sm-3">Short Name</dt>
+                    <dd class="col-sm-9">{{ node.short_name }}</dd>
+
+                    <dt class="col-sm-3">Description</dt>
+                    <dd class="col-sm-9">{{ node.description|default:"—" }}</dd>
+
+                    <dt class="col-sm-3">Created By</dt>
+                    <dd class="col-sm-9">{{ node.created_by.user.get_full_name|default:node.created_by.user.username }}</dd>
+
+                    <dt class="col-sm-3">Created</dt>
+                    <dd class="col-sm-9">{{ node.created_timestamp|date:"Y-m-d H:i" }}</dd>
+
+                    <dt class="col-sm-3">Last Updated</dt>
+                    <dd class="col-sm-9">{{ node.updated_timestamp|date:"Y-m-d H:i" }}</dd>
+                </dl>
+            </div>
+        </div>
+
+        {% if node.nodeother %}
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>Organizational Details</strong>
+                {% if user|has_any_group:'Analyst,Admin' %}
+                <a href="{% url 'vta:node_other_update' node.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">Organization</dt>
+                    <dd class="col-sm-9">{{ node.nodeother.organization }}</dd>
+
+                    <dt class="col-sm-3">Funder</dt>
+                    <dd class="col-sm-9">{{ node.nodeother.funder }}</dd>
+
+                    <dt class="col-sm-3">Funding Country</dt>
+                    <dd class="col-sm-9">{{ node.nodeother.funding_country }}</dd>
+
+                    <dt class="col-sm-3">Website</dt>
+                    <dd class="col-sm-9">
+                        {% if node.nodeother.website %}
+                        <a href="{{ node.nodeother.website }}" target="_blank">{{ node.nodeother.website }}</a>
+                        {% else %}—{% endif %}
+                    </dd>
+
+                    <dt class="col-sm-3">Contact Information</dt>
+                    <dd class="col-sm-9">{{ node.nodeother.contact_information }}</dd>
+
+                    <dt class="col-sm-3">Persistent Identifier</dt>
+                    <dd class="col-sm-9">{{ node.nodeother.persistent_identifier|default:"—" }}</dd>
+
+                    <dt class="col-sm-3">Hypothetical</dt>
+                    <dd class="col-sm-9">{{ node.nodeother.hypothetical|yesno:"Yes,No" }}</dd>
+                </dl>
+            </div>
+        </div>
+        {% elif node.nodesocietalbenefitarea %}
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong>Framework Details</strong>
+                {% if user|has_any_group:'Analyst,Admin' %}
+                <a href="{% url 'vta:node_sba_update' node.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">Framework Name</dt>
+                    <dd class="col-sm-9">{{ node.nodesocietalbenefitarea.framework_name|default:"—" }}</dd>
+
+                    <dt class="col-sm-3">Framework URL</dt>
+                    <dd class="col-sm-9">
+                        {% if node.nodesocietalbenefitarea.framework_url %}
+                        <a href="{{ node.nodesocietalbenefitarea.framework_url }}" target="_blank">{{ node.nodesocietalbenefitarea.framework_url }}</a>
+                        {% else %}—{% endif %}
+                    </dd>
+                </dl>
+            </div>
+        </div>
+        {% endif %}
+
+        <a href="{% url 'vta:node_list' %}" class="btn btn-secondary">Back to Object Library</a>
+    </div>
+</div>
+{% endblock %}

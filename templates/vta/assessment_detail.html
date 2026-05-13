@@ -1,0 +1,91 @@
+{% extends 'vta/base.html' %}
+{% load vta_tags %}
+
+{% block title %}{{ assessment.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'vta:assessment_list' %}">Assessments</a></li>
+                <li class="breadcrumb-item active">{{ assessment.title }}</li>
+            </ol>
+        </nav>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1>{{ assessment.title }}</h1>
+            <div>
+                {% if user|has_any_group:'Analyst,Admin' %}
+                <a href="{% url 'vta:assessment_update' assessment.pk %}" class="btn btn-warning">Edit</a>
+                <a href="{% url 'vta:sankey_visualization' assessment.pk %}" class="btn btn-info">Sankey Diagram</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Details</h5>
+                <p><strong>Status:</strong> {{ assessment.get_status_display }}</p>
+                <p><strong>Private:</strong> {{ assessment.private|yesno:"Yes,No" }}</p>
+                <p><strong>Hypothetical:</strong> {{ assessment.hypothetical|yesno:"Yes,No" }}</p>
+                {% if assessment.description %}
+                <p><strong>Description:</strong> {{ assessment.description }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <h2>Nodes ({{ nodes.count }})</h2>
+        {% if nodes %}
+        <div class="table-responsive mb-4">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Title</th>
+                        <th>Short Name</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for an in nodes %}
+                    <tr>
+                        <td>{{ an.node.get_type_display }}</td>
+                        <td>{{ an.node.title }}</td>
+                        <td>{{ an.node.short_name }}</td>
+                        <td>{{ an.node.description|truncatewords:20 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No nodes have been added to this assessment.</p>
+        {% endif %}
+
+        <h2>Links ({{ links.count }})</h2>
+        {% if user|has_any_group:'Analyst,Admin' %}
+        <a href="{% url 'vta:link_create' assessment.pk %}" class="btn btn-sm btn-success mb-3">Add Link</a>
+        {% endif %}
+        {% for an in links %}
+            {% for link in an.output_links.all %}
+            <div class="card mb-2">
+                <div class="card-body">
+                    <p><strong>{{ link.source_assessment_node.node.title }}</strong> → <strong>{{ link.target_assessment_node.node.title }}</strong></p>
+                    {% if link.performance_rating %}
+                    <p>Performance: {{ link.performance_rating }}/100</p>
+                    {% endif %}
+                    {% if link.criticality_rating %}
+                    <p>Criticality: {{ link.criticality_rating }}/10</p>
+                    {% endif %}
+                    {% if user|has_any_group:'Analyst,Admin' %}
+                    <a href="{% url 'vta:link_update' link.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                    <a href="{% url 'vta:link_delete' link.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

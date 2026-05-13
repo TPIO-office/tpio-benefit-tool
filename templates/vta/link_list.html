@@ -1,0 +1,55 @@
+{% extends 'vta/base.html' %}
+{% load vta_tags %}
+
+{% block title %}Links - {{ assessment.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1>Links - {{ assessment.title }}</h1>
+            {% if user|has_any_group:'Analyst,Admin' %}
+            <a href="{% url 'vta:link_create' assessment.pk %}" class="btn btn-primary">New Link</a>
+            {% endif %}
+        </div>
+
+        <a href="{% url 'vta:assessment_detail' assessment.pk %}" class="btn btn-sm btn-secondary mb-3">&larr; Back to Assessment</a>
+
+        {% if links %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Source Node</th>
+                        <th>Target Node</th>
+                        <th>Attribute</th>
+                        <th>Performance</th>
+                        <th>Criticality</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for link in links %}
+                    <tr>
+                        <td>{{ link.source_assessment_node.node.title }}</td>
+                        <td>{{ link.target_assessment_node.node.title }}</td>
+                        <td>{{ link.attribute_description|default:"—" }}</td>
+                        <td>{{ link.performance_rating|default:"—" }}</td>
+                        <td>{{ link.criticality_rating|default:"—" }}</td>
+                        <td>
+                            {% if user|has_any_group:'Analyst,Admin' %}
+                            <a href="{% url 'vta:link_update' link.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                            <a href="{% url 'vta:link_delete' link.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">No links defined for this assessment.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
