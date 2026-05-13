@@ -7,3 +7,5 @@ media/
 .env
 .DS_Store
 *.log
+test-results
+.idea
