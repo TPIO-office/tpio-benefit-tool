@@ -6,6 +6,7 @@ from django.contrib.auth.models import User, Group
 from vta.models import (
     Assessment,
     AssessmentNode,
+    Link,
     Node,
     NodeType,
     UserProfile,
@@ -144,5 +145,21 @@ class Command(BaseCommand):
                 AssessmentNode.objects.create(assessment=assessment, node=node)
 
             self.stdout.write(self.style.SUCCESS('Created demo assessment with all nodes'))
+
+            # Create links between assessment nodes (observing_system -> data_product -> application -> societal_benefit)
+            anodes = {n.node.type: n for n in AssessmentNode.objects.filter(assessment=assessment)}
+            link_data = [
+                (anodes[NodeType.OBSERVING_SYSTEM], anodes[NodeType.DATA_PRODUCT], 80, 8),
+                (anodes[NodeType.DATA_PRODUCT], anodes[NodeType.APPLICATION], 70, 7),
+                (anodes[NodeType.APPLICATION], anodes[NodeType.SOCIETAL_BENEFIT_AREA], 60, 9),
+            ]
+            for source, target, perf, crit in link_data:
+                Link.objects.create(
+                    source_assessment_node=source,
+                    target_assessment_node=target,
+                    performance_rating=perf,
+                    criticality_rating=crit,
+                )
+            self.stdout.write(self.style.SUCCESS('Created demo links between assessment nodes'))
 
         self.stdout.write(self.style.SUCCESS('Seeding complete.'))

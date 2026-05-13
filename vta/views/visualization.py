@@ -27,8 +27,7 @@ class SankeyVisualizationView(LoginRequiredMixin, DetailView):
             )
         )
         sankey_data = self._build_sankey_data(links)
-        context['sankey_data'] = json.dumps(sankey_data)
-        context['sankey_data_json'] = sankey_data
+        context['sankey_data_json'] = json.dumps(sankey_data)
         return context
 
     def _build_sankey_data(self, links):

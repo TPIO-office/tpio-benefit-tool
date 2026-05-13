@@ -939,7 +939,7 @@ class SankeyVisualizationViewTest(BaseViewTest):
         response = self.client.get(
             reverse('vta:sankey_visualization', kwargs={'pk': self.assessment.pk})
         )
-        self.assertIn('sankey_data', response.context)
+        self.assertIn('sankey_data_json', response.context)
 
 
 class ValueTreeJsonViewTest(BaseViewTest):
