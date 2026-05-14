@@ -162,4 +162,126 @@ class Command(BaseCommand):
                 )
             self.stdout.write(self.style.SUCCESS('Created demo links between assessment nodes'))
 
+        # Create Arctic Report Card assessment if it doesn't exist
+        if not Assessment.objects.filter(title='Physical Indicators: 20th Anniversary Arctic Report Card').exists():
+            analyst_profile = UserProfile.objects.get(user__username='analyst')
+            arc_assessment = Assessment.objects.create(
+                title='Physical Indicators: 20th Anniversary Arctic Report Card',
+                description='Evaluate the societal benefits of Arctic observing systems for the 20th Anniversary Arctic Report Card.',
+                private=False,
+                hypothetical=False,
+                created_by=analyst_profile,
+            )
+
+            # Create 7 observing system nodes
+            observing_systems = [
+                'Surface Air Temp',
+                'Lake Ice',
+                'Sea Ice',
+                'Precipitation',
+                'Terrestrial Snow Cover',
+                'Sea Surface Temp',
+                'Greenland Ice Sheet',
+            ]
+            for title in observing_systems:
+                Node.objects.get_or_create(
+                    title=title,
+                    defaults={
+                        'type': NodeType.OBSERVING_SYSTEM,
+                        'short_name': title.split()[0],
+                        'description': f'{title} observation system for Arctic monitoring.',
+                        'created_by': analyst_profile,
+                    }
+                )
+
+            # Create 5 societal benefit area nodes
+            societal_benefit_areas = [
+                'Fundamental Understanding',
+                'Terrestrial Freshwater',
+                'Marine Coastal',
+                'Environmental Quality',
+                'Weather and Climate',
+            ]
+            for title in societal_benefit_areas:
+                Node.objects.get_or_create(
+                    title=title,
+                    defaults={
+                        'type': NodeType.SOCIETAL_BENEFIT_AREA,
+                        'short_name': title.split()[0],
+                        'description': f'{title} - societal benefit area for Arctic observations.',
+                        'created_by': analyst_profile,
+                        'framework_name': None,
+                        'framework_url': None,
+                    }
+                )
+
+            # Add all 12 nodes as AssessmentNodes
+            for node in Node.objects.filter(title__in=observing_systems + societal_benefit_areas):
+                AssessmentNode.objects.get_or_create(
+                    assessment=arc_assessment,
+                    node=node,
+                )
+
+            # Create 30 links between observing systems and SBAs with varied ratings
+            link_data = [
+                # Strong links with high ratings
+                ('Sea Ice', 'Marine Coastal', 90, 10),
+                ('Surface Air Temp', 'Weather and Climate', 95, 10),
+                ('Greenland Ice Sheet', 'Weather and Climate', 85, 9),
+                ('Lake Ice', 'Terrestrial Freshwater', 70, 7),
+                ('Precipitation', 'Weather and Climate', 80, 8),
+                ('Terrestrial Snow Cover', 'Terrestrial Freshwater', 65, 6),
+                ('Sea Surface Temp', 'Marine Coastal', 75, 8),
+                # Additional strong links
+                ('Surface Air Temp', 'Fundamental Understanding', 92, 9),
+                ('Sea Ice', 'Fundamental Understanding', 88, 8),
+                ('Greenland Ice Sheet', 'Environmental Quality', 78, 7),
+                # Medium performance links
+                ('Lake Ice', 'Environmental Quality', 60, 5),
+                ('Precipitation', 'Terrestrial Freshwater', 72, 6),
+                ('Sea Surface Temp', 'Environmental Quality', 68, 6),
+                ('Terrestrial Snow Cover', 'Weather and Climate', 74, 7),
+                ('Precipitation', 'Marine Coastal', 55, 5),
+                # Lower performance links
+                ('Lake Ice', 'Fundamental Understanding', 50, 4),
+                ('Sea Surface Temp', 'Fundamental Understanding', 45, 4),
+                ('Terrestrial Snow Cover', 'Fundamental Understanding', 58, 5),
+                # Links with null performance_rating (grey rendering)
+                ('Lake Ice', 'Marine Coastal', None, 6),
+                ('Precipitation', 'Environmental Quality', None, 5),
+                ('Sea Surface Temp', 'Weather and Climate', None, 7),
+                ('Terrestrial Snow Cover', 'Marine Coastal', None, 4),
+                # Links with null criticality_rating (minimum thickness)
+                ('Surface Air Temp', 'Environmental Quality', 82, None),
+                ('Sea Ice', 'Environmental Quality', 76, None),
+                ('Lake Ice', 'Weather and Climate', 63, None),
+                ('Precipitation', 'Fundamental Understanding', 48, None),
+                # Remaining links to reach 30
+                ('Surface Air Temp', 'Terrestrial Freshwater', 70, 6),
+                ('Sea Ice', 'Terrestrial Freshwater', 62, 5),
+                ('Greenland Ice Sheet', 'Fundamental Understanding', 82, 8),
+                ('Greenland Ice Sheet', 'Terrestrial Freshwater', 72, 7),
+            ]
+
+            for source_title, target_title, perf, crit in link_data:
+                source_an = AssessmentNode.objects.filter(
+                    assessment=arc_assessment,
+                    node__title=source_title
+                ).first()
+                target_an = AssessmentNode.objects.filter(
+                    assessment=arc_assessment,
+                    node__title=target_title
+                ).first()
+                if source_an and target_an:
+                    Link.objects.get_or_create(
+                        source_assessment_node=source_an,
+                        target_assessment_node=target_an,
+                        defaults={
+                            'performance_rating': perf,
+                            'criticality_rating': crit,
+                        }
+                    )
+
+            self.stdout.write(self.style.SUCCESS('Created Arctic Report Card assessment with 12 nodes and 30 links'))
+
         self.stdout.write(self.style.SUCCESS('Seeding complete.'))

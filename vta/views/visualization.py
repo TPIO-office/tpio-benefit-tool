@@ -58,6 +58,7 @@ class SankeyVisualizationView(LoginRequiredMixin, DetailView):
                 'source': nodes[source_node.pk],
                 'target': nodes[target_node.pk],
                 'value': value,
+                'performance_rating': link.performance_rating,
                 'criticality': link.criticality_rating or 0,
                 'gaps': link.gaps_description or '',
                 'id': link.pk,
