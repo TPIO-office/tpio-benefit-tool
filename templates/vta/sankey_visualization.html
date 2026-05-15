@@ -22,6 +22,32 @@
         stroke-width: 1px;
         cursor: move;
     }
+    #sankey-tooltip {
+        position: absolute;
+        display: none;
+        background: rgba(33, 37, 41, 0.95);
+        color: #fff;
+        padding: 10px 14px;
+        border-radius: 6px;
+        font-size: 12px;
+        line-height: 1.5;
+        pointer-events: none;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        max-width: 300px;
+    }
+    #sankey-tooltip .tooltip-title {
+        font-weight: 600;
+        margin-bottom: 6px;
+        color: #fff;
+    }
+    #sankey-tooltip .tooltip-row {
+        color: #ced4da;
+    }
+    #sankey-tooltip .tooltip-value {
+        color: #fff;
+        font-weight: 500;
+    }
 </style>
 {% endblock %}
 
@@ -39,6 +65,7 @@
         <p class="text-muted mb-4">{{ assessment.title }}</p>
 
         <div id="sankey-chart"></div>
+<div id="sankey-tooltip"></div>
     </div>
 </div>
 {% endblock %}
@@ -252,7 +279,43 @@
         .attr('d', d3.sankeyLinkHorizontal())
         .attr('stroke-width', function (d) { return getLinkThickness(d); })
         .style('stroke-opacity', 0.3)
-        .attr('fill', function (d) { return getLinkColor(d); });
+        .attr('fill', function (d) { return getLinkColor(d); })
+        .on('mouseover', function(event, d) {
+            var tooltip = document.getElementById('sankey-tooltip');
+            var sourceName = d.source.name;
+            var targetName = d.target.name;
+            var perfRating = d.performance_rating !== null && d.performance_rating !== undefined ? d.performance_rating : 'Unrated';
+            var critRating = d.criticality !== null && d.criticality !== undefined ? d.criticality : 'N/A';
+            tooltip.innerHTML = '<div class="tooltip-title">' + sourceName + ' → ' + targetName + '</div>' +
+                '<div class="tooltip-row">Performance rating: <span class="tooltip-value">' + perfRating + '</span></div>' +
+                '<div class="tooltip-row">Criticality rating: <span class="tooltip-value">' + critRating + '</span></div>';
+            tooltip.style.display = 'block';
+            tooltip.style.left = (event.pageX + 15) + 'px';
+            tooltip.style.top = (event.pageY + 15) + 'px';
+
+            // Highlight hovered link
+            d3.select(this)
+                .style('stroke-opacity', 1)
+                .attr('stroke-width', function(d) { return getLinkThickness(d) + 2; });
+
+            // Dim all other links
+            linkPath.filter(function(other) { return other !== d; })
+                .style('stroke-opacity', 0.05);
+        })
+        .on('mouseout', function(event, d) {
+            var tooltip = document.getElementById('sankey-tooltip');
+            tooltip.style.display = 'none';
+
+            // Reset all links to normal opacity
+            linkPath
+                .style('stroke-opacity', 0.3)
+                .attr('stroke-width', function(d) { return getLinkThickness(d); });
+        })
+        .on('mousemove', function(event) {
+            var tooltip = document.getElementById('sankey-tooltip');
+            tooltip.style.left = (event.pageX + 15) + 'px';
+            tooltip.style.top = (event.pageY + 15) + 'px';
+        });
 
     var nodeGroups = svg.append('g')
         .selectAll('g')

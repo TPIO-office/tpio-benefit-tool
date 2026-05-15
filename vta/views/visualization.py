@@ -62,6 +62,9 @@ class SankeyVisualizationView(LoginRequiredMixin, DetailView):
                 'criticality': link.criticality_rating or 0,
                 'gaps': link.gaps_description or '',
                 'id': link.pk,
+                'performance_rating_rationale': link.performance_rating_rationale or '',
+                'criticality_rating_rationale': link.criticality_rating_rationale or '',
+                'attribute_description': link.attribute_description or '',
             })
 
         return {'nodes': node_list, 'links': link_list}
